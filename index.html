@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Elbistan Ramazan İmsakiye</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap');
+
+*{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif;}
+
+body{
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:white;
+  overflow:hidden;
+}
+
+/* 🔥 ARKA PLAN VİDEO */
+.bg-video{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  z-index:-2;
+}
+
+/* Üstüne hafif karartma */
+.overlay{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.5);
+  z-index:-1;
+}
+
+.container{
+  width:95%;
+  max-width:650px;
+  background:rgba(255,255,255,0.08);
+  backdrop-filter:blur(15px);
+  border-radius:20px;
+  padding:25px;
+  box-shadow:0 0 40px rgba(0,0,0,0.4);
+}
+
+h1{text-align:center;margin-bottom:5px;}
+.date{text-align:center;font-size:14px;opacity:0.8;margin-bottom:15px;}
+
+.countdown{
+  background:rgba(255,255,255,0.1);
+  padding:15px;
+  border-radius:15px;
+  text-align:center;
+  margin-bottom:20px;
+}
+
+.timer{
+  font-size:30px;
+  font-weight:bold;
+  color:#00ffcc;
+}
+
+.prayer-times div,
+.calendar div{
+  display:flex;
+  justify-content:space-between;
+  padding:8px 0;
+  border-bottom:1px solid rgba(255,255,255,0.1);
+}
+
+.calendar{
+  margin-top:20px;
+  max-height:260px;
+  overflow-y:auto;
+  font-size:13px;
+}
+
+
+.calendar div{
+  cursor:pointer;
+  padding:10px;
+  border-radius:8px;
+  transition:0.2s;
+}
+
+.calendar div:hover{
+  background:rgba(255,255,255,0.15);
+}
+
+.active-day{
+  background:rgba(0,255,204,0.2) !important;
+}
+
+/* 🔥 SOL ALT İMZA */
+.signature{
+  position:fixed;
+  bottom:10px;
+  left:15px;
+  font-size:12px;
+  opacity:0.6;
+}
+</style>
+</head>
+
+<body>
+
+<!-- 🔥 VİDEO -->
+<video autoplay muted loop playsinline class="bg-video">
+  <source src="arkaplan.mp4" type="video/mp4">
+</video>
+
+<div class="overlay"></div>
+
+<div class="container">
+  <h1>🌙 Elbistan Ramazan İmsakiyesi</h1>
+  <div class="date" id="todayDate"></div>
+
+  <div class="countdown">
+    <h3 id="countdownTitle">Yükleniyor...</h3>
+    <div class="timer" id="timer">00:00:00</div>
+  </div>
+
+  <div class="prayer-times" id="prayerTimes"></div>
+
+  <h3 style="margin-top:20px;">📿 Ramazan Takvimi</h3>
+  <div class="calendar" id="calendar"></div>
+</div>
+
+<!-- 🔥 SOL ALT YAZI -->
+<div class="signature">
+  © 2026 Zeki – Tüm hakları saklıdır.
+</div>
+
+<script>
+const lat=38.2291;
+const lon=37.2052;
+const hijriYear=1447;
+const ramadanMonth=9;
+
+let countdownInterval;
+let currentActive=null;
+
+function formatTime(t){return t.split(" ")[0];}
+
+function parseDate(str){
+  const parts=str.split("-");
+  return new Date(parts[2],parts[1]-1,parts[0]);
+}
+
+function timeToDate(timeStr,dateObj){
+  const [h,m]=timeStr.split(":");
+  return new Date(dateObj.getFullYear(),dateObj.getMonth(),dateObj.getDate(),h,m);
+}
+
+function startCountdown(target,title){
+  clearInterval(countdownInterval);
+  document.getElementById("countdownTitle").textContent=title;
+
+  countdownInterval=setInterval(()=>{
+    const now=new Date();
+    const diff=target-now;
+
+    if(diff<=0){
+      document.getElementById("timer").textContent="00:00:00";
+      return;
+    }
+
+    const h=Math.floor(diff/1000/60/60);
+    const m=Math.floor(diff/1000/60%60);
+    const s=Math.floor(diff/1000%60);
+
+    document.getElementById("timer").textContent=
+      h.toString().padStart(2,"0")+":"+
+      m.toString().padStart(2,"0")+":"+
+      s.toString().padStart(2,"0");
+  },1000);
+}
+
+function updateMainCard(dayData){
+  const times=dayData.timings;
+  const selectedDate=parseDate(dayData.date.gregorian.date);
+  const today=new Date();
+
+  document.getElementById("todayDate").textContent=
+    "Miladi: "+dayData.date.gregorian.date+
+    " | Hicri: "+dayData.date.hijri.day+" "+dayData.date.hijri.month.en;
+
+  document.getElementById("prayerTimes").innerHTML=`
+    <div><span>İmsak</span><span>${formatTime(times.Imsak)}</span></div>
+    <div><span>Güneş</span><span>${formatTime(times.Sunrise)}</span></div>
+    <div><span>Öğle</span><span>${formatTime(times.Dhuhr)}</span></div>
+    <div><span>İkindi</span><span>${formatTime(times.Asr)}</span></div>
+    <div><span>Akşam (İftar)</span><span>${formatTime(times.Maghrib)}</span></div>
+    <div><span>Yatsı</span><span>${formatTime(times.Isha)}</span></div>
+  `;
+
+  if(selectedDate.toDateString()===today.toDateString()){
+    const sahur=timeToDate(formatTime(times.Imsak),today);
+    const iftar=timeToDate(formatTime(times.Maghrib),today);
+
+    if(today<sahur){
+      startCountdown(sahur,"🌅 Sahura Kalan Süre");
+    }else if(today<iftar){
+      startCountdown(iftar,"🌙 İftara Kalan Süre");
+    }
+  }else{
+    clearInterval(countdownInterval);
+    document.getElementById("countdownTitle").textContent="📅 Seçilen Gün";
+    document.getElementById("timer").textContent="--:--:--";
+  }
+}
+
+async function getRamadan(){
+  const url=`https://api.aladhan.com/v1/hijriCalendar/${hijriYear}/${ramadanMonth}?latitude=${lat}&longitude=${lon}&method=13`;
+  const res=await fetch(url);
+  const data=await res.json();
+  return data.data;
+}
+
+getRamadan().then(ramadanData=>{
+  const cal=document.getElementById("calendar");
+
+  ramadanData.forEach((day)=>{
+    const div=document.createElement("div");
+
+    div.innerHTML=`
+      <span>
+        ${day.date.hijri.day}. Gün
+        <span style="opacity:0.6;font-size:11px;">
+          (${day.date.gregorian.date})
+        </span>
+      </span>
+      <span>İftar: ${formatTime(day.timings.Maghrib)}</span>
+    `;
+
+    div.onclick=()=>{
+      if(currentActive) currentActive.classList.remove("active-day");
+      div.classList.add("active-day");
+      currentActive=div;
+      updateMainCard(day);
+    };
+
+    cal.appendChild(div);
+  });
+
+  updateMainCard(ramadanData[0]);
+});
+</script>
+
+</body>
+</html>
