@@ -19,25 +19,19 @@ body{
   overflow:hidden;
 }
 
-/* 🔥 ARKA PLAN VİDEO */
 .bg-video{
   position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
+  top:0; left:0;
+  width:100%; height:100%;
   object-fit:cover;
   z-index:-2;
 }
 
-/* Üstüne hafif karartma */
 .overlay{
   position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  background:rgba(0,0,0,0.5);
+  top:0; left:0;
+  width:100%; height:100%;
+  background:rgba(0,0,0,0.55);
   z-index:-1;
 }
 
@@ -83,7 +77,6 @@ h1{text-align:center;margin-bottom:5px;}
   font-size:13px;
 }
 
-
 .calendar div{
   cursor:pointer;
   padding:10px;
@@ -96,10 +89,9 @@ h1{text-align:center;margin-bottom:5px;}
 }
 
 .active-day{
-  background:rgba(0,255,204,0.2) !important;
+  background:rgba(0,255,204,0.25) !important;
 }
 
-/* 🔥 SOL ALT İMZA */
 .signature{
   position:fixed;
   bottom:10px;
@@ -112,7 +104,6 @@ h1{text-align:center;margin-bottom:5px;}
 
 <body>
 
-<!-- 🔥 VİDEO -->
 <video autoplay muted loop playsinline class="bg-video">
   <source src="/arkaplan.mp4" type="video/mp4">
 </video>
@@ -134,7 +125,6 @@ h1{text-align:center;margin-bottom:5px;}
   <div class="calendar" id="calendar"></div>
 </div>
 
-<!-- 🔥 SOL ALT YAZI -->
 <div class="signature">
   © 2026 Zeki – Tüm hakları saklıdır.
 </div>
@@ -146,7 +136,7 @@ const hijriYear=1447;
 const ramadanMonth=9;
 
 let countdownInterval;
-let currentActive=null;
+let ramadanDataGlobal=[];
 
 function formatTime(t){return t.split(" ")[0];}
 
@@ -169,7 +159,7 @@ function startCountdown(target,title){
     const diff=target-now;
 
     if(diff<=0){
-      document.getElementById("timer").textContent="00:00:00";
+      location.reload();
       return;
     }
 
@@ -184,14 +174,20 @@ function startCountdown(target,title){
   },1000);
 }
 
-function updateMainCard(dayData){
-  const times=dayData.timings;
-  const selectedDate=parseDate(dayData.date.gregorian.date);
+function updateTodayCard(){
   const today=new Date();
 
+  const todayData=ramadanDataGlobal.find(d=>{
+    return parseDate(d.date.gregorian.date).toDateString()===today.toDateString();
+  });
+
+  if(!todayData) return;
+
+  const times=todayData.timings;
+
   document.getElementById("todayDate").textContent=
-    "Miladi: "+dayData.date.gregorian.date+
-    " | Hicri: "+dayData.date.hijri.day+" "+dayData.date.hijri.month.en;
+    "Miladi: "+todayData.date.gregorian.date+
+    " | Hicri: "+todayData.date.hijri.day+" "+todayData.date.hijri.month.en;
 
   document.getElementById("prayerTimes").innerHTML=`
     <div><span>İmsak</span><span>${formatTime(times.Imsak)}</span></div>
@@ -202,19 +198,25 @@ function updateMainCard(dayData){
     <div><span>Yatsı</span><span>${formatTime(times.Isha)}</span></div>
   `;
 
-  if(selectedDate.toDateString()===today.toDateString()){
-    const sahur=timeToDate(formatTime(times.Imsak),today);
-    const iftar=timeToDate(formatTime(times.Maghrib),today);
+  const sahur=timeToDate(formatTime(times.Imsak),today);
+  const iftar=timeToDate(formatTime(times.Maghrib),today);
 
-    if(today<sahur){
-      startCountdown(sahur,"🌅 Sahura Kalan Süre");
-    }else if(today<iftar){
-      startCountdown(iftar,"🌙 İftara Kalan Süre");
-    }
+  if(today<sahur){
+    startCountdown(sahur,"🌅 Sahura Kalan Süre");
+  }else if(today<iftar){
+    startCountdown(iftar,"🌙 İftara Kalan Süre");
   }else{
-    clearInterval(countdownInterval);
-    document.getElementById("countdownTitle").textContent="📅 Seçilen Gün";
-    document.getElementById("timer").textContent="--:--:--";
+    const tomorrow=new Date(today);
+    tomorrow.setDate(today.getDate()+1);
+
+    const tomorrowData=ramadanDataGlobal.find(d=>{
+      return parseDate(d.date.gregorian.date).toDateString()===tomorrow.toDateString();
+    });
+
+    if(tomorrowData){
+      const nextSahur=timeToDate(formatTime(tomorrowData.timings.Imsak),tomorrow);
+      startCountdown(nextSahur,"🌅 Sahuruna Kalan Süre");
+    }
   }
 }
 
@@ -225,11 +227,15 @@ async function getRamadan(){
   return data.data;
 }
 
-getRamadan().then(ramadanData=>{
-  const cal=document.getElementById("calendar");
+getRamadan().then(data=>{
+  ramadanDataGlobal=data;
 
-  ramadanData.forEach((day)=>{
+  const cal=document.getElementById("calendar");
+  const today=new Date();
+
+  data.forEach(day=>{
     const div=document.createElement("div");
+    const dayDate=parseDate(day.date.gregorian.date);
 
     div.innerHTML=`
       <span>
@@ -238,20 +244,26 @@ getRamadan().then(ramadanData=>{
           (${day.date.gregorian.date})
         </span>
       </span>
-      <span>İftar: ${formatTime(day.timings.Maghrib)}</span>
+      <span>
+        Sahur: ${formatTime(day.timings.Imsak)} |
+        İftar: ${formatTime(day.timings.Maghrib)}
+      </span>
     `;
 
-    div.onclick=()=>{
-      if(currentActive) currentActive.classList.remove("active-day");
+    if(dayDate.toDateString()===today.toDateString()){
       div.classList.add("active-day");
-      currentActive=div;
-      updateMainCard(day);
+      div.scrollIntoView({block:"center"});
+    }
+
+    div.onclick=()=>{
+      document.querySelectorAll(".calendar div").forEach(d=>d.classList.remove("active-day"));
+      div.classList.add("active-day");
     };
 
     cal.appendChild(div);
   });
 
-  updateMainCard(ramadanData[0]);
+  updateTodayCard();
 });
 </script>
 
