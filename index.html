@@ -3,305 +3,485 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Elbistan Ramazan İmsakiye</title>
+<title>Ramazan İmsakiyesi</title>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Poppins:wght@300;400;500;700&display=swap');
 
-*{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif;}
-
+*{margin:0;padding:0;box-sizing:border-box;}
 body{
   min-height:100vh;
   display:flex;
+  flex-direction:column;
   align-items:center;
-  justify-content:center;
   color:white;
-  overflow:hidden;
-  background:black;
+  background:#0a0a0f;
+  font-family:'Poppins',sans-serif;
+  overflow-x:hidden;
 }
 
-/* Arkaplan Video */
-.bg-video{
+body::before{
+  content:'';
   position:fixed;
-  top:0; left:0;
-  width:100%; height:100%;
-  object-fit:cover;
-  z-index:-2;
-}
-
-/* Overlay */
-.overlay{
-  position:fixed;
-  top:0; left:0;
-  width:100%; height:100%;
-  background:linear-gradient(to bottom,rgba(0,0,0,0.6),rgba(0,0,0,0.8));
+  inset:0;
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(0,180,130,0.07) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 20%, rgba(100,60,180,0.08) 0%, transparent 50%);
   z-index:-1;
 }
 
-/* Container Premium Glass */
+/* ===== NAVBAR ===== */
+.navbar{
+  width:100%;
+  padding:14px 24px;
+  display:flex;
+  align-items:center;
+  gap:16px;
+  background:rgba(255,255,255,0.03);
+  border-bottom:1px solid rgba(255,255,255,0.08);
+  backdrop-filter:blur(20px);
+  position:sticky;
+  top:0;
+  z-index:100;
+  flex-wrap:wrap;
+}
+
+.navbar-brand{
+  font-family:'Amiri',serif;
+  font-size:20px;
+  font-weight:700;
+  color:#00ffcc;
+  letter-spacing:1px;
+  white-space:nowrap;
+}
+
+.search-wrapper{
+  display:flex;
+  align-items:center;
+  flex:1;
+  min-width:220px;
+  max-width:420px;
+  background:rgba(255,255,255,0.07);
+  border:1px solid rgba(255,255,255,0.12);
+  border-radius:30px;
+  padding:8px 16px;
+  gap:8px;
+  transition:all 0.3s;
+  position:relative;
+}
+
+.search-wrapper:focus-within{
+  border-color:rgba(0,255,204,0.5);
+  background:rgba(0,255,204,0.05);
+  box-shadow:0 0 20px rgba(0,255,204,0.1);
+}
+
+#citySearch{
+  background:none;
+  border:none;
+  outline:none;
+  color:white;
+  font-family:'Poppins',sans-serif;
+  font-size:14px;
+  width:100%;
+}
+
+#citySearch::placeholder{color:rgba(255,255,255,0.4);}
+
+#suggestions{
+  position:absolute;
+  top:calc(100% + 8px);
+  left:0;
+  right:0;
+  background:#161622;
+  border:1px solid rgba(0,255,204,0.2);
+  border-radius:14px;
+  overflow:hidden;
+  display:none;
+  z-index:200;
+  box-shadow:0 10px 40px rgba(0,0,0,0.6);
+}
+
+.suggestion-item{
+  padding:10px 16px;
+  cursor:pointer;
+  font-size:13px;
+  transition:background 0.2s;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.suggestion-item:hover, .suggestion-item.active{
+  background:rgba(0,255,204,0.1);
+  color:#00ffcc;
+}
+
+.suggestion-item .country{font-size:11px;opacity:0.5;}
+
+.btn-search{
+  padding:8px 18px;
+  background:linear-gradient(135deg,#00ffcc,#00c4a0);
+  color:#0a0a0f;
+  border:none;
+  border-radius:30px;
+  font-family:'Poppins',sans-serif;
+  font-weight:600;
+  font-size:13px;
+  cursor:pointer;
+  transition:all 0.3s;
+  white-space:nowrap;
+}
+
+.btn-search:hover{
+  transform:scale(1.05);
+  box-shadow:0 0 20px rgba(0,255,204,0.4);
+}
+
+/* ===== MAIN ===== */
 .container{
   width:95%;
   max-width:650px;
-  background:linear-gradient(
-    145deg,
-    rgba(255,255,255,0.15),
-    rgba(255,255,255,0.05)
-  );
-  backdrop-filter:blur(25px);
-  border-radius:25px;
-  padding:30px;
-  border:1px solid rgba(255,255,255,0.2);
-  box-shadow:
-    0 10px 50px rgba(0,0,0,0.6),
-    inset 0 0 30px rgba(255,255,255,0.05);
-  animation:fadeIn 1.2s ease;
+  padding:28px 0 40px;
+  animation:fadeIn 0.8s ease;
 }
 
-@keyframes fadeIn{
-  from{opacity:0;transform:translateY(20px);}
-  to{opacity:1;transform:translateY(0);}
+@keyframes fadeIn{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+
+h1{
+  font-family:'Amiri',serif;
+  font-size:28px;
+  text-align:center;
+  margin-bottom:4px;
 }
 
-h1{text-align:center;margin-bottom:5px;}
-.date{text-align:center;font-size:14px;opacity:0.8;margin-bottom:15px;}
+.city-label{
+  text-align:center;
+  font-size:12px;
+  color:#00ffcc;
+  letter-spacing:3px;
+  text-transform:uppercase;
+  margin-bottom:4px;
+}
+
+.date{text-align:center;font-size:13px;opacity:0.45;margin-bottom:20px;}
 
 .countdown{
-  background:rgba(0,255,204,0.08);
-  border:1px solid rgba(0,255,204,0.3);
-  padding:18px;
-  border-radius:18px;
+  background:rgba(0,255,204,0.05);
+  border:1px solid rgba(0,255,204,0.18);
+  padding:20px;
+  border-radius:20px;
   text-align:center;
   margin-bottom:20px;
 }
 
 .timer{
-  font-size:34px;
-  font-weight:bold;
+  font-size:38px;
+  font-weight:700;
   color:#00ffcc;
-  text-shadow:
-    0 0 5px #00ffcc,
-    0 0 15px #00ffcc,
-    0 0 25px #00ffcc;
+  letter-spacing:4px;
+  text-shadow:0 0 8px rgba(0,255,204,0.5),0 0 20px rgba(0,255,204,0.3);
+  font-variant-numeric:tabular-nums;
 }
 
-.prayer-times div,
+.prayer-times div{
+  display:flex;
+  justify-content:space-between;
+  padding:12px 4px;
+  border-bottom:1px solid rgba(255,255,255,0.07);
+  font-size:14px;
+}
+
+.prayer-times div span:first-child{opacity:0.65;}
+.prayer-times div span:last-child{font-weight:500;color:#00ffcc;}
+
+.calendar{
+  margin-top:24px;
+  max-height:270px;
+  overflow-y:auto;
+  font-size:13px;
+  scrollbar-width:thin;
+  scrollbar-color:rgba(0,255,204,0.3) transparent;
+}
+
 .calendar div{
   display:flex;
   justify-content:space-between;
-  padding:10px 0;
-  border-bottom:1px solid rgba(255,255,255,0.1);
-}
-
-.calendar{
-  margin-top:20px;
-  max-height:260px;
-  overflow-y:auto;
-  font-size:13px;
-}
-
-.calendar div{
-  cursor:pointer;
-  padding:12px;
+  align-items:center;
+  padding:11px 12px;
   border-radius:10px;
-  transition:all 0.3s ease;
+  border-bottom:1px solid rgba(255,255,255,0.05);
+  cursor:pointer;
+  transition:all 0.2s;
 }
 
 .calendar div:hover{
-  transform:translateX(6px);
-  background:rgba(255,255,255,0.18);
+  background:rgba(255,255,255,0.06);
+  transform:translateX(4px);
 }
 
 .active-day{
-  background:rgba(0,255,204,0.15) !important;
-  border-left:4px solid #00ffcc;
-  box-shadow:0 0 15px rgba(0,255,204,0.4);
+  background:rgba(0,255,204,0.1) !important;
+  border-left:3px solid #00ffcc !important;
+  box-shadow:0 0 12px rgba(0,255,204,0.12);
   font-weight:600;
 }
 
-.signature{
-  position:fixed;
-  bottom:10px;
-  left:15px;
-  font-size:12px;
-  opacity:0.6;
-}
+.loader{text-align:center;padding:40px;color:rgba(255,255,255,0.35);font-size:13px;}
+.spinner{width:34px;height:34px;border:3px solid rgba(0,255,204,0.15);border-top-color:#00ffcc;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 12px;}
+@keyframes spin{to{transform:rotate(360deg);}}
 
-/* Responsive */
-@media(max-width:600px){
-  .container{padding:20px;}
-  .timer{font-size:28px;}
-  .calendar{max-height:200px;}
-}
+.error{text-align:center;color:#ff6b6b;padding:20px;font-size:13px;}
+
+.signature{text-align:center;font-size:11px;opacity:0.25;margin-top:30px;padding-bottom:20px;}
 </style>
 </head>
 
 <body>
 
-<video autoplay muted loop playsinline class="bg-video">
-  <source src="/arkaplan.mp4" type="video/mp4">
-</video>
-
-<div class="overlay"></div>
+<nav class="navbar">
+  <div class="navbar-brand">🌙 İmsakiye</div>
+  <div class="search-wrapper">
+    <span>🔍</span>
+    <input type="text" id="citySearch" placeholder="Şehir ara... (ör: İstanbul, Ankara, Berlin)" autocomplete="off">
+    <div id="suggestions"></div>
+  </div>
+  <button class="btn-search" onclick="searchCity()">Ara</button>
+</nav>
 
 <div class="container">
-  <h1>🌙 Elbistan Ramazan İmsakiyesi</h1>
+  <h1>🌙 Ramazan İmsakiyesi</h1>
+  <div class="city-label" id="cityLabel">Elbistan</div>
   <div class="date" id="todayDate"></div>
 
   <div class="countdown">
-    <h3 id="countdownTitle">Yükleniyor...</h3>
-    <div class="timer" id="timer">00:00:00</div>
+    <h3 id="countdownTitle" style="font-size:13px;opacity:0.6;font-weight:400;margin-bottom:8px;">Yükleniyor...</h3>
+    <div class="timer" id="timer">--:--:--</div>
   </div>
 
   <div class="prayer-times" id="prayerTimes"></div>
 
-  <h3 style="margin-top:20px;">📿 Ramazan Takvimi</h3>
-  <div class="calendar" id="calendar"></div>
+  <h3 style="margin-top:24px;font-size:15px;opacity:0.75;font-weight:500;">📿 Ramazan Takvimi</h3>
+  <div class="calendar" id="calendar">
+    <div class="loader"><div class="spinner"></div>Yükleniyor...</div>
+  </div>
 </div>
 
-<div class="signature">
-  © 2026 Zeki – Tüm hakları saklıdır.
-</div>
+<div class="signature">© 2026 Zeki – Tüm hakları saklıdır.</div>
 
 <script>
-const lat=38.2291;
-const lon=37.2052;
-const hijriYear=1447;
-const ramadanMonth=9;
+const CITIES=[
+  {name:"Elbistan",lat:38.2291,lon:37.2052,country:"Türkiye"},
+  {name:"İstanbul",lat:41.0082,lon:28.9784,country:"Türkiye"},
+  {name:"Ankara",lat:39.9334,lon:32.8597,country:"Türkiye"},
+  {name:"İzmir",lat:38.4192,lon:27.1287,country:"Türkiye"},
+  {name:"Bursa",lat:40.1826,lon:29.0665,country:"Türkiye"},
+  {name:"Adana",lat:37.0,lon:35.3213,country:"Türkiye"},
+  {name:"Konya",lat:37.8667,lon:32.4833,country:"Türkiye"},
+  {name:"Antalya",lat:36.8969,lon:30.7133,country:"Türkiye"},
+  {name:"Gaziantep",lat:37.0662,lon:37.3833,country:"Türkiye"},
+  {name:"Kayseri",lat:38.7205,lon:35.4826,country:"Türkiye"},
+  {name:"Mersin",lat:36.8,lon:34.6333,country:"Türkiye"},
+  {name:"Samsun",lat:41.2867,lon:36.33,country:"Türkiye"},
+  {name:"Trabzon",lat:41.0015,lon:39.7178,country:"Türkiye"},
+  {name:"Diyarbakır",lat:37.9144,lon:40.2306,country:"Türkiye"},
+  {name:"Kahramanmaraş",lat:37.5858,lon:36.9371,country:"Türkiye"},
+  {name:"Malatya",lat:38.3552,lon:38.3095,country:"Türkiye"},
+  {name:"Eskişehir",lat:39.7767,lon:30.5206,country:"Türkiye"},
+  {name:"Şanlıurfa",lat:37.1591,lon:38.7969,country:"Türkiye"},
+  {name:"Van",lat:38.4891,lon:43.4089,country:"Türkiye"},
+  {name:"Erzurum",lat:39.9055,lon:41.2658,country:"Türkiye"},
+  {name:"Hatay",lat:36.4018,lon:36.3498,country:"Türkiye"},
+  {name:"Manisa",lat:38.6191,lon:27.4289,country:"Türkiye"},
+  {name:"Sakarya",lat:40.7731,lon:30.4042,country:"Türkiye"},
+  {name:"Tekirdağ",lat:40.9833,lon:27.5167,country:"Türkiye"},
+  {name:"Elazığ",lat:38.6748,lon:39.2225,country:"Türkiye"},
+  {name:"Berlin",lat:52.52,lon:13.405,country:"Almanya"},
+  {name:"Köln",lat:50.9333,lon:6.95,country:"Almanya"},
+  {name:"Hamburg",lat:53.5753,lon:10.0153,country:"Almanya"},
+  {name:"Frankfurt",lat:50.1109,lon:8.6821,country:"Almanya"},
+  {name:"Münih",lat:48.1351,lon:11.582,country:"Almanya"},
+  {name:"Londra",lat:51.5074,lon:-0.1278,country:"İngiltere"},
+  {name:"Paris",lat:48.8566,lon:2.3522,country:"Fransa"},
+  {name:"Amsterdam",lat:52.3676,lon:4.9041,country:"Hollanda"},
+  {name:"Viyana",lat:48.2082,lon:16.3738,country:"Avusturya"},
+  {name:"Brüksel",lat:50.8503,lon:4.3517,country:"Belçika"},
+  {name:"Stockholm",lat:59.3293,lon:18.0686,country:"İsveç"},
+  {name:"Dubai",lat:25.2048,lon:55.2708,country:"BAE"},
+  {name:"Riyad",lat:24.6877,lon:46.7219,country:"S.Arabistan"},
+  {name:"Mekke",lat:21.3891,lon:39.8579,country:"S.Arabistan"},
+  {name:"Medine",lat:24.5247,lon:39.5692,country:"S.Arabistan"},
+  {name:"Kahire",lat:30.0626,lon:31.2497,country:"Mısır"},
+  {name:"New York",lat:40.7128,lon:-74.006,country:"ABD"},
+  {name:"Los Angeles",lat:34.0522,lon:-118.2437,country:"ABD"},
+];
 
-let countdownInterval;
+let currentCity=CITIES[0];
 let ramadanDataGlobal=[];
 let todayDataGlobal=null;
+let countdownInterval;
 
 function formatTime(t){return t.split(" ")[0];}
+function parseDate(str){const p=str.split("-");return new Date(p[2],p[1]-1,p[0]);}
+function timeToDate(ts,d){const[h,m]=ts.split(":");return new Date(d.getFullYear(),d.getMonth(),d.getDate(),+h,+m);}
 
-function parseDate(str){
-  const parts=str.split("-");
-  return new Date(parts[2],parts[1]-1,parts[0]);
+document.getElementById("todayDate").textContent=new Date().toLocaleDateString("tr-TR",{weekday:"long",year:"numeric",month:"long",day:"numeric"});
+
+// Search
+const searchInput=document.getElementById("citySearch");
+const suggestionsEl=document.getElementById("suggestions");
+let activeSuggIndex=-1;
+
+searchInput.addEventListener("input",()=>{
+  const q=searchInput.value.trim().toLowerCase();
+  if(q.length<1){suggestionsEl.style.display="none";return;}
+  const filtered=CITIES.filter(c=>
+    c.name.toLowerCase().includes(q)||c.country.toLowerCase().includes(q)
+  ).slice(0,7);
+  if(!filtered.length){suggestionsEl.style.display="none";return;}
+  suggestionsEl.innerHTML=filtered.map(c=>`
+    <div class="suggestion-item" onclick="selectCityByName('${c.name}')">
+      <span>${c.name}</span>
+      <span class="country">${c.country}</span>
+    </div>
+  `).join("");
+  suggestionsEl.style.display="block";
+  activeSuggIndex=-1;
+});
+
+searchInput.addEventListener("keydown",e=>{
+  const items=suggestionsEl.querySelectorAll(".suggestion-item");
+  if(e.key==="ArrowDown"){e.preventDefault();activeSuggIndex=Math.min(activeSuggIndex+1,items.length-1);}
+  else if(e.key==="ArrowUp"){e.preventDefault();activeSuggIndex=Math.max(activeSuggIndex-1,0);}
+  else if(e.key==="Enter"){if(activeSuggIndex>=0)items[activeSuggIndex].click();else searchCity();return;}
+  else if(e.key==="Escape"){suggestionsEl.style.display="none";return;}
+  items.forEach((el,i)=>el.classList.toggle("active",i===activeSuggIndex));
+});
+
+document.addEventListener("click",e=>{if(!e.target.closest(".search-wrapper"))suggestionsEl.style.display="none";});
+
+function selectCityByName(name){
+  const found=CITIES.find(c=>c.name===name);
+  if(found){currentCity=found;searchInput.value=found.name;suggestionsEl.style.display="none";loadCity();}
 }
 
-function timeToDate(timeStr,dateObj){
-  const [h,m]=timeStr.split(":");
-  return new Date(dateObj.getFullYear(),dateObj.getMonth(),dateObj.getDate(),h,m);
+function searchCity(){
+  const q=searchInput.value.trim().toLowerCase();
+  const found=CITIES.find(c=>c.name.toLowerCase()===q||c.name.toLowerCase().startsWith(q));
+  if(found){currentCity=found;loadCity();}
+  else alert("Şehir bulunamadı. Listeden bir şehir seçiniz.");
 }
 
-/* ------------------ Geri Sayım (HER ZAMAN BUGÜN) ------------------ */
-
-function startCountdown(target,title){
+// Load Data
+async function loadCity(){
+  document.getElementById("cityLabel").textContent=currentCity.name;
+  document.getElementById("calendar").innerHTML='<div class="loader"><div class="spinner"></div>Yükleniyor...</div>';
+  document.getElementById("prayerTimes").innerHTML="";
+  document.getElementById("countdownTitle").textContent="Yükleniyor...";
+  document.getElementById("timer").textContent="--:--:--";
   clearInterval(countdownInterval);
-  document.getElementById("countdownTitle").textContent=title;
+  todayDataGlobal=null;
 
-  countdownInterval=setInterval(()=>{
-    const now=new Date();
-    const diff=target-now;
-
-    if(diff<=0){
-      location.reload();
-      return;
-    }
-
-    const h=Math.floor(diff/1000/60/60);
-    const m=Math.floor(diff/1000/60%60);
-    const s=Math.floor(diff/1000%60);
-
-    document.getElementById("timer").textContent=
-      h.toString().padStart(2,"0")+":"+
-      m.toString().padStart(2,"0")+":"+
-      s.toString().padStart(2,"0");
-  },1000);
-}
-
-function updateCountdown(){
-  const today=new Date();
-  const times=todayDataGlobal.timings;
-
-  const sahur=timeToDate(formatTime(times.Imsak),today);
-  const iftar=timeToDate(formatTime(times.Maghrib),today);
-
-  if(today<sahur){
-    startCountdown(sahur,"🌅 Sahura Kalan Süre");
-  }else if(today<iftar){
-    startCountdown(iftar,"🌙 İftara Kalan Süre");
-  }else{
-    const tomorrow=new Date(today);
-    tomorrow.setDate(today.getDate()+1);
-
-    const tomorrowData=ramadanDataGlobal.find(d=>{
-      return parseDate(d.date.gregorian.date).toDateString()===tomorrow.toDateString();
-    });
-
-    if(tomorrowData){
-      const nextSahur=timeToDate(formatTime(tomorrowData.timings.Imsak),tomorrow);
-      startCountdown(nextSahur,"🌅 Yarının Sahuruna Kalan Süre");
-    }
+  try{
+    const url=`https://api.aladhan.com/v1/hijriCalendar/1447/9?latitude=${currentCity.lat}&longitude=${currentCity.lon}&method=13`;
+    const res=await fetch(url);
+    const data=await res.json();
+    ramadanDataGlobal=data.data;
+    renderCalendar();
+  }catch(err){
+    document.getElementById("calendar").innerHTML='<div class="error">❌ Veriler yüklenemedi. İnternet bağlantınızı kontrol edin.</div>';
   }
 }
 
-/* ------------------ SAATLERİ GÜNCELLE (TIKLANAN GÜN) ------------------ */
-
-function updatePrayerTimes(dayData){
-  const times=dayData.timings;
-
-  document.getElementById("prayerTimes").innerHTML=`
-    <div><span>İmsak</span><span>${formatTime(times.Imsak)}</span></div>
-    <div><span>Güneş</span><span>${formatTime(times.Sunrise)}</span></div>
-    <div><span>Öğle</span><span>${formatTime(times.Dhuhr)}</span></div>
-    <div><span>İkindi</span><span>${formatTime(times.Asr)}</span></div>
-    <div><span>Akşam (İftar)</span><span>${formatTime(times.Maghrib)}</span></div>
-    <div><span>Yatsı</span><span>${formatTime(times.Isha)}</span></div>
-  `;
-}
-
-/* ------------------ API ------------------ */
-
-async function getRamadan(){
-  const url=`https://api.aladhan.com/v1/hijriCalendar/${hijriYear}/${ramadanMonth}?latitude=${lat}&longitude=${lon}&method=13`;
-  const res=await fetch(url);
-  const data=await res.json();
-  return data.data;
-}
-
-getRamadan().then(data=>{
-  ramadanDataGlobal=data;
-
+function renderCalendar(){
   const cal=document.getElementById("calendar");
+  cal.innerHTML="";
   const today=new Date();
 
-  data.forEach(day=>{
+  ramadanDataGlobal.forEach(day=>{
     const div=document.createElement("div");
     const dayDate=parseDate(day.date.gregorian.date);
+    const isToday=dayDate.toDateString()===today.toDateString();
 
     div.innerHTML=`
       <span>
-        ${day.date.hijri.day}. Gün
-        <span style="opacity:0.6;font-size:11px;">
-          (${day.date.gregorian.date})
-        </span>
+        <strong>${day.date.hijri.day}. Gün</strong>
+        <span style="opacity:0.4;font-size:11px;margin-left:6px;">${day.date.gregorian.date}</span>
       </span>
-      <span>
-        Sahur: ${formatTime(day.timings.Imsak)} |
-        İftar: ${formatTime(day.timings.Maghrib)}
+      <span style="font-size:12px;opacity:0.8;">
+        🌅 ${formatTime(day.timings.Imsak)} &nbsp;|&nbsp; 🌙 ${formatTime(day.timings.Maghrib)}
       </span>
     `;
 
-    if(dayDate.toDateString()===today.toDateString()){
+    if(isToday){
       div.classList.add("active-day");
       todayDataGlobal=day;
-      updatePrayerTimes(day); // ilk açılışta bugünün saatleri
+      updatePrayerTimes(day);
+      updateCountdown();
+      setTimeout(()=>div.scrollIntoView({block:"center",behavior:"smooth"}),400);
     }
 
     div.onclick=()=>{
       document.querySelectorAll(".calendar div").forEach(d=>d.classList.remove("active-day"));
       div.classList.add("active-day");
-
-      updatePrayerTimes(day); // sadece saatler değişir
+      updatePrayerTimes(day);
     };
 
     cal.appendChild(div);
   });
 
-  updateCountdown(); // geri sayım her zaman bugüne göre
-});
-</script>
+  if(!todayDataGlobal){
+    // If today is outside Ramadan, just show first day times
+    updatePrayerTimes(ramadanDataGlobal[0]);
+    document.getElementById("countdownTitle").textContent="Ramazan dışında";
+    document.getElementById("timer").textContent="--:--:--";
+  }
+}
 
+function updatePrayerTimes(d){
+  const t=d.timings;
+  document.getElementById("prayerTimes").innerHTML=`
+    <div><span>🌑 İmsak</span><span>${formatTime(t.Imsak)}</span></div>
+    <div><span>☀️ Güneş</span><span>${formatTime(t.Sunrise)}</span></div>
+    <div><span>🕛 Öğle</span><span>${formatTime(t.Dhuhr)}</span></div>
+    <div><span>🕓 İkindi</span><span>${formatTime(t.Asr)}</span></div>
+    <div><span>🌅 Akşam (İftar)</span><span>${formatTime(t.Maghrib)}</span></div>
+    <div><span>🌃 Yatsı</span><span>${formatTime(t.Isha)}</span></div>
+  `;
+}
+
+function startCountdown(target,title){
+  clearInterval(countdownInterval);
+  document.getElementById("countdownTitle").textContent=title;
+  countdownInterval=setInterval(()=>{
+    const diff=target-new Date();
+    if(diff<=0){clearInterval(countdownInterval);location.reload();return;}
+    const h=Math.floor(diff/3600000);
+    const m=Math.floor((diff%3600000)/60000);
+    const s=Math.floor((diff%60000)/1000);
+    document.getElementById("timer").textContent=
+      h.toString().padStart(2,"0")+":"+m.toString().padStart(2,"0")+":"+s.toString().padStart(2,"0");
+  },1000);
+}
+
+function updateCountdown(){
+  if(!todayDataGlobal)return;
+  const today=new Date();
+  const t=todayDataGlobal.timings;
+  const sahur=timeToDate(formatTime(t.Imsak),today);
+  const iftar=timeToDate(formatTime(t.Maghrib),today);
+
+  if(today<sahur) startCountdown(sahur,"🌅 Sahura Kalan Süre");
+  else if(today<iftar) startCountdown(iftar,"🌙 İftara Kalan Süre");
+  else{
+    const tomorrow=new Date(today);
+    tomorrow.setDate(today.getDate()+1);
+    const td=ramadanDataGlobal.find(d=>parseDate(d.date.gregorian.date).toDateString()===tomorrow.toDateString());
+    if(td) startCountdown(timeToDate(formatTime(td.timings.Imsak),tomorrow),"🌅 Yarının Sahuruna Kalan Süre");
+  }
+}
+
+loadCity();
+</script>
 </body>
 </html>
