@@ -170,6 +170,7 @@ const ramadanMonth=9;
 
 let countdownInterval;
 let ramadanDataGlobal=[];
+let todayDataGlobal=null;
 
 function formatTime(t){return t.split(" ")[0];}
 
@@ -182,6 +183,8 @@ function timeToDate(timeStr,dateObj){
   const [h,m]=timeStr.split(":");
   return new Date(dateObj.getFullYear(),dateObj.getMonth(),dateObj.getDate(),h,m);
 }
+
+/* ------------------ Geri Sayım (HER ZAMAN BUGÜN) ------------------ */
 
 function startCountdown(target,title){
   clearInterval(countdownInterval);
@@ -207,29 +210,9 @@ function startCountdown(target,title){
   },1000);
 }
 
-function updateTodayCard(){
+function updateCountdown(){
   const today=new Date();
-
-  const todayData=ramadanDataGlobal.find(d=>{
-    return parseDate(d.date.gregorian.date).toDateString()===today.toDateString();
-  });
-
-  if(!todayData) return;
-
-  const times=todayData.timings;
-
-  document.getElementById("todayDate").textContent=
-    "Miladi: "+todayData.date.gregorian.date+
-    " | Hicri: "+todayData.date.hijri.day+" "+todayData.date.hijri.month.en;
-
-  document.getElementById("prayerTimes").innerHTML=`
-    <div><span>İmsak</span><span>${formatTime(times.Imsak)}</span></div>
-    <div><span>Güneş</span><span>${formatTime(times.Sunrise)}</span></div>
-    <div><span>Öğle</span><span>${formatTime(times.Dhuhr)}</span></div>
-    <div><span>İkindi</span><span>${formatTime(times.Asr)}</span></div>
-    <div><span>Akşam (İftar)</span><span>${formatTime(times.Maghrib)}</span></div>
-    <div><span>Yatsı</span><span>${formatTime(times.Isha)}</span></div>
-  `;
+  const times=todayDataGlobal.timings;
 
   const sahur=timeToDate(formatTime(times.Imsak),today);
   const iftar=timeToDate(formatTime(times.Maghrib),today);
@@ -252,6 +235,23 @@ function updateTodayCard(){
     }
   }
 }
+
+/* ------------------ SAATLERİ GÜNCELLE (TIKLANAN GÜN) ------------------ */
+
+function updatePrayerTimes(dayData){
+  const times=dayData.timings;
+
+  document.getElementById("prayerTimes").innerHTML=`
+    <div><span>İmsak</span><span>${formatTime(times.Imsak)}</span></div>
+    <div><span>Güneş</span><span>${formatTime(times.Sunrise)}</span></div>
+    <div><span>Öğle</span><span>${formatTime(times.Dhuhr)}</span></div>
+    <div><span>İkindi</span><span>${formatTime(times.Asr)}</span></div>
+    <div><span>Akşam (İftar)</span><span>${formatTime(times.Maghrib)}</span></div>
+    <div><span>Yatsı</span><span>${formatTime(times.Isha)}</span></div>
+  `;
+}
+
+/* ------------------ API ------------------ */
 
 async function getRamadan(){
   const url=`https://api.aladhan.com/v1/hijriCalendar/${hijriYear}/${ramadanMonth}?latitude=${lat}&longitude=${lon}&method=13`;
@@ -285,18 +285,21 @@ getRamadan().then(data=>{
 
     if(dayDate.toDateString()===today.toDateString()){
       div.classList.add("active-day");
-      div.scrollIntoView({block:"center"});
+      todayDataGlobal=day;
+      updatePrayerTimes(day); // ilk açılışta bugünün saatleri
     }
 
     div.onclick=()=>{
       document.querySelectorAll(".calendar div").forEach(d=>d.classList.remove("active-day"));
       div.classList.add("active-day");
+
+      updatePrayerTimes(day); // sadece saatler değişir
     };
 
     cal.appendChild(div);
   });
 
-  updateTodayCard();
+  updateCountdown(); // geri sayım her zaman bugüne göre
 });
 </script>
 
